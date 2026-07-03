@@ -9,7 +9,7 @@
 
 ---
 ## URL
-https://anestatico.onrender.com/dashboard
+https://analizador-estatico-upt.onrender.com
 
 ## 📋 Descripción
 
