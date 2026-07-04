@@ -88,20 +88,26 @@ El equipo desarrolla una plataforma integral que permite a los usuarios someter 
 | Código | Requerimiento Funcional | Descripción | Prioridad |
 | :--- | :--- | :--- | :--- |
 | RF01 | Autenticación de Usuarios | Login y registro mediante credenciales (auth_router). | Alta |
-| RF02 | Ingreso de Código | Ingreso de código fuente vía web para evaluación. | Alta |
+| RF02 | Ingreso de Código | Ingreso de código fuente vía web para evaluación estática. | Alta |
 | RF03 | Análisis Léxico | Identificación de palabras clave, operadores y literales. | Alta |
 | RF04 | Análisis Sintáctico y AST | Validación gramatical y construcción del árbol AST. | Alta |
 | RF05 | Coordinación de Análisis | Orquestación de pasos y cálculo de métricas centralizado. | Alta |
-| RF06 | Dashboard de Resultados | Vista de resumen con gráficas y errores (dashboard.html). | Media |
-| RF07 | Historial de Análisis | Guardado de resultados vinculados al usuario. | Media |
+| RF06 | Dashboard de Resultados | Vista de resumen interactiva con gráficas y errores (dashboard.html). | Media |
+| RF07 | Historial de Análisis | Guardado de resultados de análisis vinculados a la cuenta del usuario. | Media |
+| RF08 | Auditoría de Seguridad Automatizada | Integración de herramientas para análisis de vulnerabilidades en código y dependencias. | Alta |
+| RF09 | Portal de Reportes SQA | Generación y publicación centralizada de reportes de calidad y pruebas. | Media |
 
 ### 4.2. Requerimientos No Funcionales
 | Código | Requerimiento No Funcional | Descripción | Prioridad |
 | :--- | :--- | :--- | :--- |
-| RNF01 | Rendimiento | Análisis de <1000 líneas en menos de 3 segundos. | Alta |
-| RNF02 | Despliegue | Orquestación mediante contenedores Docker. | Alta |
-| RNF03 | Modularidad | Motor desacoplado de la base de datos para testeo. | Alta |
-| RNF04 | Seguridad | Encriptación de contraseñas en repositorio de usuarios. | Alta |
+| RNF01 | Rendimiento | Análisis estático de fragmentos de <1000 líneas en menos de 3 segundos. | Alta |
+| RNF02 | Despliegue e Infraestructura | Orquestación mediante contenedores Docker y despliegue automatizado. | Alta |
+| RNF03 | Arquitectura y Modularidad | Diseño bajo Clean Architecture, manteniendo el motor core desacoplado. | Alta |
+| RNF04 | Seguridad de Datos | Encriptación de contraseñas en repositorio de usuarios. | Alta |
+| RNF05 | Integración Continua (CI/CD) | Automatización del versionamiento, pruebas y escaneo mediante GitHub Actions. | Alta |
+| RNF06 | Calidad del Código (SQA) | El código debe superar métricas del Quality Gate (SonarCloud). | Alta |
+| RNF07 | Fiabilidad y Pruebas (Testing) | Obligatoriedad de pruebas Unitarias, Mutación, BDD y UI con cobertura trazable. | Alta |
+| RNF08 | Seguridad Estática (DevSecOps) | El repositorio debe estar libre de vulnerabilidades (Semgrep y Snyk). | Alta |
 
 ---
 
