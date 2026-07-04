@@ -23,6 +23,9 @@ Este sistema permite a los desarrolladores someter fragmentos de código para au
 | 📊 **Dashboard Interactivo** | Interfaz gráfica (`dashboard.html`) que renderiza estadísticas, gráficos de complejidad y detalla los posibles errores gramaticales detectados. |
 | 🛡️ **Arquitectura Limpia** | Separación estricta de responsabilidades mediante coordinadores (`analysis_coordinator.py`) y repositorios, facilitando la escalabilidad y el testing. |
 | 🐳 **Despliegue Contenerizado** | Orquestación completa del backend y la base de datos utilizando `docker-compose.yml` para asegurar la portabilidad. |
+| 🛡️ **DevSecOps y SQA** | Pipeline CI/CD automatizado con escaneo de código (SonarCloud), vulnerabilidades (Snyk/Semgrep) y cobertura (Pytest/Mutmut). |
+| 🧩 **Extensión VS Code** | Integración nativa en el editor para realizar evaluaciones de código en tiempo real. |
+| 🤖 **AI Agent Skill** | Habilidad (Skill) diseñada para que agentes de inteligencia artificial interactúen directamente con el analizador y validen métricas. |
 
 ---
 
@@ -34,6 +37,10 @@ El proyecto define sus dependencias en el archivo `requirements.txt` y está pre
 *   **Frontend:** HTML5, JS (Renderizado dinámico en cliente)
 *   **Orquestación:** Docker & Docker Compose
 *   **Arquitectura:** Clean Architecture modular
+*   **Testing y Calidad (SQA):** Pytest (Unitario/BDD), Mutmut (Mutación), Playwright (UI E2E), SonarCloud
+*   **Seguridad y Análisis Estático:** Snyk, Semgrep
+*   **CI/CD:** GitHub Actions (Pipelines automatizados y GitHub Pages)
+*   **Ecosistema:** VS Code Extension API
 
 ---
 
@@ -51,8 +58,10 @@ Dependiendo del framework configurado en main.py (ej. FastAPI/Flask), inicia el 
 python app/main.py
 
 
-##📁 Estructura del Proyecto
+## 📁 Estructura del Proyecto
 proyecto-analizador-estatico/
+├── 📂 .agents/                        # Configuración de habilidades (Skills) para Agentes IA
+├── 📂 .github/                        # Flujos de trabajo de GitHub Actions (CI/CD)
 ├── 📂 app/
 │   ├── 📄 main.py                     # Punto de entrada de la aplicación
 │   ├── 📂 motor_analisis/             # [Capa Core] Lógica pura de evaluación
@@ -75,10 +84,12 @@ proyecto-analizador-estatico/
 ├── 📄 requirements.txt                # Dependencias del proyecto Python
 ├── 📄 contexto_arq.md                 # Notas de contexto de arquitectura
 ├── 📄 contexto_req.md                 # Notas de contexto de requerimientos
-├── 📂 docs/                           # Documentación formal del proyecto
-│   └── 📄 FD01 a FD06 (Informes de Factibilidad, Visión, Requerimientos, Arquitectura, Proyecto Final)
-└── 📂 media/                          # Recursos gráficos
-    └── 🖼️ logo-upt.png                # Logotipo institucional de la universidad
+├── 📂 docs/                           # Documentación formal y reportes de QA
+│   └── 📄 FD01 a FD06 (Informes, Diagramas, Reportes de Seguridad y Pruebas)
+├── 📂 media/                          # Recursos gráficos
+├── 📂 skill/                          # Scripts y definiciones de la AI Skill ("validador_metricas")
+├── 📂 tests/                          # Suite de pruebas (Unitarias, BDD y UI con Playwright)
+└── 📂 vscode-extension/               # Código fuente de la extensión para Visual Studio Code
 
 ##👥 Equipo de Desarrollo
 Integrantes:
