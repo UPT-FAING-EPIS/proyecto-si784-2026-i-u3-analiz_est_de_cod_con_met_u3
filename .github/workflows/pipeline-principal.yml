@@ -145,6 +145,7 @@ jobs:
           </body>
           </html>
           EOF
+          touch public/.nojekyll
 
       - name: Desplegar a GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
