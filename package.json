@@ -1,0 +1,8 @@
+{
+  "name": "proyecto-demo-snyk",
+  "version": "1.0.0",
+  "description": "Dummy package just for Snyk to detect vulnerabilities",
+  "dependencies": {
+    "lodash": "4.17.10"
+  }
+}
