@@ -16,3 +16,58 @@ def test_read_dashboard():
 def test_read_admin():
     response = client.get("/admin")
     assert response.status_code == 200
+
+from app.motor_analisis.services import analyze_code
+
+def test_analyze_java_code():
+    java_code = """
+    public class Main {
+        public int id;
+        public void sayHello(int a, int b, int c, int d, int e, int f) {
+            if (a > 0) {
+                System.out.println("Hello");
+            }
+        }
+    }
+    """
+    result = analyze_code(java_code, ".java")
+    assert result["nom"] == 1
+    assert result["npm"] == 1
+    assert result["noa"] == 1
+    assert result["complexity"] >= 1
+    assert len(result["code_smells"]) >= 1
+
+def test_analyze_python_code():
+    py_code = """
+class MyClass:
+    def __init__(self):
+        self.value = 1
+        
+    def my_method(self, a, b, c, d, e, f):
+        if a > 0:
+            print("Hello")
+            
+def func():
+    pass
+    """
+    result = analyze_code(py_code, ".py")
+    assert result["nom"] == 3
+    assert result["noa"] == 1
+    assert result["complexity"] >= 1
+
+def test_analyze_csharp_code():
+    cs_code = """
+    public class Main {
+        public int id;
+        public void SayHello() {
+            if (true) {
+                Console.WriteLine("Hello");
+            }
+        }
+    }
+    """
+    result = analyze_code(cs_code, ".cs")
+    assert result["nom"] == 1
+    assert result["npm"] == 1
+    assert result["noa"] == 1
+    assert result["complexity"] >= 1
