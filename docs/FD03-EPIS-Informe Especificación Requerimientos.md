@@ -172,6 +172,10 @@ El equipo desarrolla una plataforma integral que permite a los usuarios someter 
 #####CU04: Consultar Historial de Análisis
 <img width="1252" height="578" alt="image" src="https://github.com/user-attachments/assets/f3899d7c-d7a2-4c9a-a2c7-856a1461460a" />
 
+## Diagrama de Clases Estructural
+
+<img width="1431" height="624" alt="image" src="https://github.com/user-attachments/assets/e23c02fa-e982-4056-83fb-87f1352b5077" />
+
 ---
 
 ## 7. Conclusiones y Recomendaciones
@@ -188,6 +192,4 @@ El equipo desarrolla una plataforma integral que permite a los usuarios someter 
 
 ---
 
-## 8. Anexo: Diagrama de Clases Estructural
 
-*(Pegar aquí la imagen del diagrama de clases)*
