@@ -2,7 +2,7 @@
   "name": "upt-code-analyzer",
   "displayName": "UPT Code Analyzer",
   "description": "Analizador Estático de Código con Métricas para UPT",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "publisher": "anestatico",
   "repository": {
     "type": "git",
@@ -21,8 +21,20 @@
       {
         "command": "uptAnalyzer.analyzeFile",
         "title": "UPT Analyzer: Analizar archivo actual"
+      },
+      {
+        "command": "uptAnalyzer.analyzeWorkspace",
+        "title": "UPT Analyzer: Analizar Workspace (Carpeta)"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "uptAnalyzer.analyzeWorkspace",
+          "group": "uptAnalyzer"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

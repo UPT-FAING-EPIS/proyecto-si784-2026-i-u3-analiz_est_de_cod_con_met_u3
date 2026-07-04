@@ -2,11 +2,14 @@ import * as vscode from 'vscode';
 import axios from 'axios';
 import FormData from 'form-data';
 import * as path from 'path';
+import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Felicidades, tu extensión "upt-code-analyzer" ahora está activa.');
 
-    let disposable = vscode.commands.registerCommand('uptAnalyzer.analyzeFile', async () => {
+    const validExtensions = ['.java', '.cs', '.py', '.php', '.js', '.ts', '.jsx', '.tsx', '.c', '.cpp', '.h', '.go', '.rb', '.rs'];
+
+    let disposableFile = vscode.commands.registerCommand('uptAnalyzer.analyzeFile', async () => {
         const editor = vscode.window.activeTextEditor;
 
         if (!editor) {
@@ -19,9 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
         const fileName = path.basename(filePath);
         const fileContent = document.getText();
         
-        // Extensiones soportadas
         const ext = path.extname(fileName).toLowerCase();
-        const validExtensions = ['.java', '.cs', '.py', '.php', '.js', '.ts', '.jsx', '.tsx', '.c', '.cpp', '.h', '.go', '.rb', '.rs'];
         
         if (!validExtensions.includes(ext)) {
             vscode.window.showErrorMessage(`Extensión no soportada para análisis estático: ${ext}. Soportadas: ${validExtensions.join(', ')}`);
@@ -34,7 +35,6 @@ export function activate(context: vscode.ExtensionContext) {
             cancellable: false
         }, async (progress) => {
             try {
-                // Preparar FormData
                 const formData = new FormData();
                 formData.append('project_name', `VSCode_${fileName}`);
                 formData.append('files', Buffer.from(fileContent, 'utf-8'), {
@@ -42,7 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
                     contentType: 'text/plain',
                 });
 
-                // Enviar la petición POST al backend en Render
                 const headers = formData.getHeaders();
                 try {
                     headers['Content-Length'] = formData.getLengthSync();
@@ -52,13 +51,14 @@ export function activate(context: vscode.ExtensionContext) {
 
                 const response = await axios.post('https://anestatico.onrender.com/api/analysis/external/upload_folder', formData, {
                     headers: headers,
-                    timeout: 30000 // 30 segundos máximo de espera
+                    maxBodyLength: Infinity,
+                    maxContentLength: Infinity,
+                    timeout: 60000 
                 });
 
                 const data = response.data;
 
                 if (data.status === 'success') {
-                    // Mostrar resultados
                     showResultsPanel(context, fileName, data);
                     vscode.window.showInformationMessage(`¡Análisis exitoso para ${fileName}!`);
                 } else {
@@ -71,7 +71,90 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
-    context.subscriptions.push(disposable);
+    let disposableWorkspace = vscode.commands.registerCommand('uptAnalyzer.analyzeWorkspace', async (uri?: vscode.Uri) => {
+        let folderPath: string | undefined;
+
+        if (uri && uri.fsPath) {
+            folderPath = uri.fsPath;
+        } else {
+            if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+                folderPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            } else {
+                vscode.window.showErrorMessage('No hay ninguna carpeta abierta en el workspace para analizar.');
+                return;
+            }
+        }
+        
+        const projectName = path.basename(folderPath);
+
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Analizando Carpeta ${projectName}...`,
+            cancellable: false
+        }, async (progress) => {
+            try {
+                const formData = new FormData();
+                formData.append('project_name', `VSCode_Folder_${projectName}`);
+                
+                let fileCount = 0;
+                const findFiles = (dir: string) => {
+                    const dirents = fs.readdirSync(dir, { withFileTypes: true });
+                    for (const dirent of dirents) {
+                        const res = path.resolve(dir, dirent.name);
+                        if (dirent.isDirectory()) {
+                            if (['node_modules', '.git', 'dist', 'out', 'build', '.vscode', '__pycache__', 'venv', 'env'].includes(dirent.name)) continue;
+                            findFiles(res);
+                        } else {
+                            const ext = path.extname(res).toLowerCase();
+                            if (validExtensions.includes(ext)) {
+                                const fileContent = fs.readFileSync(res, 'utf-8');
+                                formData.append('files', Buffer.from(fileContent, 'utf-8'), {
+                                    filename: res.replace(folderPath! + path.sep, ''),
+                                    contentType: 'text/plain',
+                                });
+                                fileCount++;
+                            }
+                        }
+                    }
+                };
+
+                findFiles(folderPath!);
+
+                if (fileCount === 0) {
+                    vscode.window.showErrorMessage('No se encontraron archivos válidos para analizar en la carpeta.');
+                    return;
+                }
+
+                const headers = formData.getHeaders();
+                try {
+                    headers['Content-Length'] = formData.getLengthSync();
+                } catch (e) {
+                    console.warn('No se pudo calcular Content-Length de forma síncrona');
+                }
+
+                const response = await axios.post('https://anestatico.onrender.com/api/analysis/external/upload_folder', formData, {
+                    headers: headers,
+                    maxBodyLength: Infinity,
+                    maxContentLength: Infinity,
+                    timeout: 120000 // Aumentamos el timeout a 120s para carpetas grandes
+                });
+
+                const data = response.data;
+
+                if (data.status === 'success') {
+                    showResultsPanel(context, projectName, data);
+                    vscode.window.showInformationMessage(`¡Análisis exitoso para la carpeta ${projectName} (${fileCount} archivos)!`);
+                } else {
+                    vscode.window.showErrorMessage('Error al analizar el código: La respuesta no fue exitosa.');
+                }
+            } catch (error: any) {
+                console.error(error);
+                vscode.window.showErrorMessage(`Error de conexión con el analizador: ${error.message}`);
+            }
+        });
+    });
+
+    context.subscriptions.push(disposableFile, disposableWorkspace);
 }
 
 function showResultsPanel(context: vscode.ExtensionContext, fileName: string, data: any) {
