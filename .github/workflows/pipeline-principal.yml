@@ -64,8 +64,20 @@ jobs:
         run: |
           pip install semgrep
           semgrep scan --config auto --json > public/semgrep/report.json || true
-          # Crear un pequeño visor HTML para Semgrep
-          echo "<!DOCTYPE html><html><body><h1>Reporte Semgrep</h1><p><a href='report.json'>Descargar o ver report.json crudo</a></p></body></html>" > public/semgrep/index.html
+          
+          # Convertir el JSON crudo a una tabla HTML presentable
+          python -c "
+          import json
+          try:
+              with open('public/semgrep/report.json') as f: data = json.load(f)
+              html = '<html><head><meta charset=\"UTF-8\"><title>Reporte Semgrep</title><style>body{font-family:sans-serif;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background-color:#f2f2f2;}</style></head><body><h1>Resultados de Seguridad Semgrep</h1><table><tr><th>Severidad</th><th>Mensaje</th><th>Archivo</th><th>Línea</th></tr>'
+              for r in data.get('results', []):
+                  html += f'<tr><td>{r.get(\"extra\",{}).get(\"severity\",\"N/A\")}</td><td>{r.get(\"extra\",{}).get(\"message\",\"N/A\")}</td><td>{r.get(\"path\",\"N/A\")}</td><td>{r.get(\"start\",{}).get(\"line\",\"N/A\")}</td></tr>'
+              html += '</table><br><a href=\"report.json\">Descargar JSON original</a></body></html>'
+              with open('public/semgrep/index.html', 'w') as f: f.write(html)
+          except Exception as e:
+              with open('public/semgrep/index.html', 'w') as f: f.write(f'<h1>Error generando HTML: {e}</h1><p><a href=\"report.json\">Ver JSON crudo</a></p>')
+          "
           echo "### 🔍 Resumen de Semgrep" >> $GITHUB_STEP_SUMMARY
           semgrep scan --config auto --text >> $GITHUB_STEP_SUMMARY || true
 

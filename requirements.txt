@@ -9,4 +9,4 @@ authlib
 httpx
 itsdangerous
 python-dotenv
-requests==2.34.2
+requests==2.19.1
