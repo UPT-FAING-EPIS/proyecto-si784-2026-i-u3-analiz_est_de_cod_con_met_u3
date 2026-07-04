@@ -9,4 +9,6 @@ authlib
 httpx
 itsdangerous
 python-dotenv
-requests==2.19.1
+requests==2.34.2
+# Librería añadida intencionalmente antigua SOLO para demostración de Snyk (no se usa en el código)
+flask==0.12.2
