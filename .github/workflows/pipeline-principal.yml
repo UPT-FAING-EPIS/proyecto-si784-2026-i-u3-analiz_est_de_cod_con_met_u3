@@ -64,6 +64,8 @@ jobs:
         run: |
           pip install semgrep
           semgrep scan --config auto --json > public/semgrep/report.json || true
+          # Crear un pequeño visor HTML para Semgrep
+          echo "<!DOCTYPE html><html><body><h1>Reporte Semgrep</h1><p><a href='report.json'>Descargar o ver report.json crudo</a></p></body></html>" > public/semgrep/index.html
           echo "### 🔍 Resumen de Semgrep" >> $GITHUB_STEP_SUMMARY
           semgrep scan --config auto --text >> $GITHUB_STEP_SUMMARY || true
 
@@ -72,7 +74,9 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           npm install -g snyk
-          snyk test --json | snyk-to-html -o public/snyk/index.html || echo "Se detectaron vulnerabilidades en Snyk"
+          # Evitamos el pipe que puede fallar y lo hacemos en dos pasos
+          snyk test --json > snyk_results.json || true
+          snyk-to-html -i snyk_results.json -o public/snyk/index.html || echo "<html><body><h1>Error generando reporte Snyk</h1><p>Revisa los logs de Actions (posiblemente falta el SNYK_TOKEN).</p></body></html>" > public/snyk/index.html
 
       - name: Pruebas de Mutación (mutmut)
         run: |
@@ -91,6 +95,10 @@ jobs:
       - name: Pruebas de Interfaz de Usuario (UI) con Playwright
         run: |
           PYTHONPATH=. pytest tests/ui/ --video=on --output=public/ui-videos || echo "Algunas pruebas de interfaz fallaron"
+          # GH Pages da 404 en directorios sin index.html. Creamos un index simple.
+          cat <<EOF > public/ui-videos/index.html
+          <!DOCTYPE html><html><body><h1>Videos de Playwright</h1><p>Si Playwright generó videos de fallos, deben estar en este directorio. (GH Pages no permite listar archivos por seguridad, debes acceder a ellos por su nombre exacto o revisar los artefactos de GH Actions).</p></body></html>
+          EOF
 
       - name: Generar index.html centralizado para GitHub Pages
         run: |
@@ -117,9 +125,9 @@ jobs:
               <li><a href="coverage/index.html">🟢 Reporte de Cobertura de Pruebas (Coverage)</a></li>
               <li><a href="mutmut/index.html">👾 Reporte de Pruebas de Mutación (mutmut)</a></li>
               <li><a href="bdd/index.html">📖 Reporte de Pruebas BDD</a></li>
-              <li><a href="ui-videos/">🎬 Videos de Pruebas UI (Playwright)</a></li>
+              <li><a href="ui-videos/index.html">🎬 Videos de Pruebas UI (Playwright)</a></li>
               <li><a href="snyk/index.html">🛡️ Reporte de Vulnerabilidades (Snyk)</a></li>
-              <li><a href="semgrep/report.json">🔍 Reporte Semgrep (JSON)</a></li>
+              <li><a href="semgrep/index.html">🔍 Reporte Semgrep (JSON)</a></li>
             </ul>
           </body>
           </html>
