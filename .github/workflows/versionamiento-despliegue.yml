@@ -46,10 +46,12 @@ jobs:
 
       - name: Incrementar versión
         run: |
-          echo "Ejecutando: bump-my-version bump ${{ github.event.inputs.tipo_version }}"
+          VERSION_TIPO="${{ github.event.inputs.tipo_version }}"
+          if [ -z "$VERSION_TIPO" ]; then VERSION_TIPO="patch"; fi
+          echo "Ejecutando: bump-my-version bump $VERSION_TIPO"
           
           # Aplicando el incremento real:
-          bump-my-version bump ${{ github.event.inputs.tipo_version }}
+          bump-my-version bump $VERSION_TIPO
           git push --follow-tags
 
       - name: Crear Draft de GitHub Release
