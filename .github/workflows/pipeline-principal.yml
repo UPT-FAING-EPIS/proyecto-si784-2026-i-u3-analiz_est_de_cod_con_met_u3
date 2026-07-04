@@ -1,0 +1,132 @@
+name: Pipeline Principal de Pruebas (Estáticas y Dinámicas)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  pruebas-y-analisis:
+    name: Ejecución de Pruebas y Análisis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node.js (para Snyk)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependencias base y herramientas de reporte
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov mutmut behave playwright pytest-bdd pytest-playwright pytest-html coverage
+          npm install -g snyk-to-html
+
+      - name: Instalar navegadores para Playwright
+        run: |
+          python -m playwright install --with-deps
+
+      - name: Crear estructura de carpetas para reportes
+        run: |
+          mkdir -p public/coverage public/mutmut public/bdd public/ui-videos public/snyk public/semgrep
+
+      - name: Pruebas Unitarias e Integración (Cobertura)
+        run: |
+          PYTHONPATH=. pytest --cov=app --cov-report=html:public/coverage --cov-report=xml tests/test_unit.py
+          echo "### 📊 Resumen de Cobertura" >> $GITHUB_STEP_SUMMARY
+          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+      - name: Análisis Estático con Semgrep
+        run: |
+          pip install semgrep
+          semgrep scan --config auto --json > public/semgrep/report.json || true
+          echo "### 🔍 Resumen de Semgrep" >> $GITHUB_STEP_SUMMARY
+          semgrep scan --config auto --text >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Escaneo de Seguridad con Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          npm install -g snyk
+          snyk test --json | snyk-to-html -o public/snyk/index.html || echo "Se detectaron vulnerabilidades en Snyk"
+
+      - name: Pruebas de Mutación (mutmut)
+        run: |
+          mutmut run || echo "Se detectaron mutantes que sobrevivieron"
+          mutmut html
+          mv html/* public/mutmut/ || true
+          echo "### 👾 Resumen de Mutmut" >> $GITHUB_STEP_SUMMARY
+          echo "Las pruebas de mutación se han ejecutado. Revisa el reporte en GitHub Pages para ver qué mutantes sobrevivieron." >> $GITHUB_STEP_SUMMARY
+
+      - name: Pruebas de Comportamiento (BDD)
+        run: |
+          PYTHONPATH=. pytest tests/step_defs/ --html=public/bdd/index.html --self-contained-html || echo "Algunas pruebas BDD fallaron"
+          echo "### 📖 Resumen de Pruebas BDD" >> $GITHUB_STEP_SUMMARY
+          echo "Revisa el reporte BDD en GitHub Pages para más detalles." >> $GITHUB_STEP_SUMMARY
+
+      - name: Pruebas de Interfaz de Usuario (UI) con Playwright
+        run: |
+          PYTHONPATH=. pytest tests/ui/ --video=on --output=public/ui-videos || echo "Algunas pruebas de interfaz fallaron"
+
+      - name: Generar index.html centralizado para GitHub Pages
+        run: |
+          cat <<EOF > public/index.html
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Dashboard de Calidad y Pruebas</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 2rem; background-color: #f6f8fa; color: #24292e; }
+              h1 { border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+              ul { list-style: none; padding: 0; }
+              li { margin-bottom: 1rem; background: #fff; padding: 1rem; border: 1px solid #e1e4e8; border-radius: 6px; display: flex; align-items: center; }
+              a { text-decoration: none; color: #0366d6; font-weight: 600; font-size: 1.1em; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>📊 Reportes de Pruebas y Análisis de Código</h1>
+            <p>Resultados automatizados del flujo de GitHub Actions.</p>
+            <ul>
+              <li><a href="coverage/index.html">🟢 Reporte de Cobertura de Pruebas (Coverage)</a></li>
+              <li><a href="mutmut/index.html">👾 Reporte de Pruebas de Mutación (mutmut)</a></li>
+              <li><a href="bdd/index.html">📖 Reporte de Pruebas BDD</a></li>
+              <li><a href="ui-videos/">🎬 Videos de Pruebas UI (Playwright)</a></li>
+              <li><a href="snyk/index.html">🛡️ Reporte de Vulnerabilidades (Snyk)</a></li>
+              <li><a href="semgrep/report.json">🔍 Reporte Semgrep (JSON)</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Desplegar a GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
