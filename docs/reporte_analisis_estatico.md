@@ -6,7 +6,8 @@ Como parte del aseguramiento de la calidad del software (SQA) y la filosofía De
 
 Para democratizar el acceso a las métricas del proyecto, se construyó un recolector de artefactos que genera un *Dashboard de Calidad y Pruebas* alojado de forma estática en GitHub Pages.
 
-![Hub Central de Reportes GitHub Pages](../media/hub_reportes_ghpages.png)
+<img width="916" height="708" alt="image" src="https://github.com/user-attachments/assets/ea0c8842-e01a-43b2-a91d-5f635c82255b" />
+
 *Figura 1: Interfaz del Hub centralizado generado automáticamente tras la ejecución del pipeline principal.*
 
 Este portal provee enlaces directos a los reportes HTML generados por las diferentes herramientas (Coverage, Mutmut, BDD, Playwright, Snyk y Semgrep), permitiendo a cualquier miembro del equipo visualizar el estado de salud del proyecto sin necesidad de acceder a los logs de consola.
@@ -15,7 +16,8 @@ Este portal provee enlaces directos a los reportes HTML generados por las difere
 
 Se integró **SonarCloud** para realizar un escaneo profundo sobre la mantenibilidad y fiabilidad de la base de código en cada iteración.
 
-![Dashboard de resultados en SonarCloud](../media/sonarcloud_overview.png)
+<img width="884" height="769" alt="image" src="https://github.com/user-attachments/assets/3e1fac0a-58cd-4e32-9bb6-0aba2a8fd16c" />
+
 *Figura 2: Panel de control de SonarCloud mostrando el estado actual del repositorio.*
 
 **Hallazgos y Métricas Actuales:**
@@ -29,7 +31,8 @@ Se integró **SonarCloud** para realizar un escaneo profundo sobre la mantenibil
 
 Para garantizar la seguridad de la cadena de suministro de software (Supply Chain Security), se utilizó **Snyk** con el objetivo de auditar las dependencias declaradas en el proyecto y prevenir el uso de paquetes con vulnerabilidades públicas conocidas (CVEs).
 
-![Reporte de Snyk](../media/snyk_report.png)
+<img width="959" height="637" alt="image" src="https://github.com/user-attachments/assets/14218975-8d78-4fed-ae92-3a8fbdfd5f14" />
+
 *Figura 3: Reporte final de Snyk indicando cero vulnerabilidades.*
 
 **Resultado del Escaneo:**
@@ -39,7 +42,8 @@ Snyk examinó la ruta del entorno de integración y certificó **0 vulnerabilida
 
 **Semgrep** fue incorporado para realizar un análisis sintáctico enfocado estrictamente en patrones de seguridad y malas prácticas a nivel de código y configuraciones de infraestructura.
 
-![Resultados de Semgrep](../media/semgrep_report.png)
+<img width="936" height="922" alt="image" src="https://github.com/user-attachments/assets/1b9e4cc5-4b04-44b5-bdea-2520d0bf8b53" />
+
 *Figura 4: Tabla de hallazgos detectados por las reglas preconfiguradas de Semgrep.*
 
 **Hallazgos Detectados:**
