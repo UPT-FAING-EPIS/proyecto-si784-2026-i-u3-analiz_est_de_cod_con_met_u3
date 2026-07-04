@@ -87,3 +87,65 @@ def test_analysis_history():
 def test_analysis_github():
     response = client.get("/api/analysis/github/repos/1")
     assert response.status_code in [200, 400, 401, 403, 404]
+
+import asyncio
+from app.negocios.services.websocket_manager import ConnectionManager
+from app.persistencia.database.dependencies import get_db
+from app.persistencia.repositories.user_repository import UserRepository
+from app.negocios.services.analysis_coordinator import AnalysisCoordinator
+from app.persistencia.repositories.analysis_repository import AnalysisRepository
+
+def test_websocket_manager():
+    manager = ConnectionManager()
+    class DummyWebsocket:
+        async def accept(self): pass
+        async def send_json(self, data):
+            if data.get("fail"): raise Exception("Network Error")
+            pass
+    
+    ws = DummyWebsocket()
+    asyncio.run(manager.connect(ws))
+    assert ws in manager.active_connections
+    asyncio.run(manager.broadcast({"msg": "hello"}))
+    asyncio.run(manager.broadcast({"fail": True}))
+    manager.disconnect(ws)
+    assert ws not in manager.active_connections
+
+def test_user_repository():
+    db = next(get_db())
+    repo = UserRepository(db)
+    user = repo.create_user("testuser_cov", "password123", "developer")
+    assert user.username == "testuser_cov"
+    fetched = repo.get_user_by_username("testuser_cov")
+    assert fetched is not None
+    repo.update_login_status(user.id, True)
+    repo.update_github_token(user.id, "fake_token")
+    repo.log_action(user.id, "test_action")
+    users = repo.get_all_users()
+    assert len(users) > 0
+    actions = repo.get_user_actions()
+    assert len(actions) > 0
+
+def test_analysis_coordinator_process_folder():
+    db = next(get_db())
+    repo = AnalysisRepository(db)
+    coordinator = AnalysisCoordinator(repo)
+    files_data = [
+        ("test.py", "print('hello')", ".py"),
+        ("test.java", "public class Main { public int a; }", ".java")
+    ]
+    res1 = coordinator.process_folder_stateless("test_proj", files_data)
+    assert res1["project_name"] == "test_proj"
+    res2 = coordinator.process_and_save_folder(1, "test_proj", files_data)
+    assert res2.project_name == "test_proj"
+
+def test_analysis_coordinator_process_code():
+    db = next(get_db())
+    repo = AnalysisRepository(db)
+    coordinator = AnalysisCoordinator(repo)
+    res = coordinator.process_and_save_code(1, "test_code", "print('hello')", ".py")
+    assert res.project_name == "test_code"
+
+def test_admin_routes():
+    assert client.get("/api/admin/users").status_code == 200
+    assert client.get("/api/admin/actions").status_code == 200
