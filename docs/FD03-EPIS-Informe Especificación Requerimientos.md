@@ -187,3 +187,7 @@ El equipo desarrolla una plataforma integral que permite a los usuarios someter 
 * **Sugerencias de Refactorización**: Evolucionar el motor para detectar "code smells" y proponer mejoras automáticas.
 
 ---
+
+## 8. Anexo: Diagrama de Clases Estructural
+
+*(Pegar aquí la imagen del diagrama de clases)*

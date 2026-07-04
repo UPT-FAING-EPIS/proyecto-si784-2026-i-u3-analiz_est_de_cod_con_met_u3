@@ -227,3 +227,7 @@ El análisis estático (tokenización y AST) debe realizarse en memoria de maner
 *   **Medida de respuesta**: El AST se genera y las métricas se devuelven en un tiempo no mayor a 3 segundos para 2000 líneas.
 
 ---
+
+## 12. Anexo: Diagrama de Clases Estructural
+
+*(Pegar aquí la imagen del diagrama de clases)*
