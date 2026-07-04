@@ -112,11 +112,13 @@ def test_websocket_manager():
     assert ws not in manager.active_connections
 
 def test_user_repository():
+    import uuid
     db = next(get_db())
     repo = UserRepository(db)
-    user = repo.create_user("testuser_cov", "password123", "developer")
-    assert user.username == "testuser_cov"
-    fetched = repo.get_user_by_username("testuser_cov")
+    uname = f"test_{uuid.uuid4().hex[:8]}"
+    user = repo.create_user(uname, "password123", "developer")
+    assert user.username == uname
+    fetched = repo.get_user_by_username(uname)
     assert fetched is not None
     repo.update_login_status(user.id, True)
     repo.update_github_token(user.id, "fake_token")
