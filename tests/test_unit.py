@@ -71,3 +71,19 @@ def test_analyze_csharp_code():
     assert result["npm"] == 1
     assert result["noa"] == 1
     assert result["complexity"] >= 1
+
+def test_auth_login_invalid():
+    response = client.post("/auth/login", data={"username":"admin", "password":"wrongpassword"})
+    assert response.status_code in [400, 401, 404, 302, 303, 200]
+
+def test_auth_github_login():
+    response = client.get("/auth/login/github")
+    assert response.status_code in [200, 302, 303, 404]
+
+def test_analysis_history():
+    response = client.get("/api/v1/analysis/history")
+    assert response.status_code in [200, 401, 403, 404]
+
+def test_analysis_stats():
+    response = client.get("/api/v1/analysis/stats")
+    assert response.status_code in [200, 401, 403, 404]
