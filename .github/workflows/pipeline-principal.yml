@@ -36,7 +36,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov mutmut behave playwright pytest-bdd pytest-playwright pytest-html coverage
+          pip install pytest pytest-cov "mutmut<3" behave playwright pytest-bdd pytest-playwright pytest-html coverage
           npm install -g snyk-to-html
 
       - name: Instalar navegadores para Playwright
