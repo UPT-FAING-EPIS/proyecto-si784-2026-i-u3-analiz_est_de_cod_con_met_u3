@@ -181,6 +181,9 @@ El análisis estático (tokenización y AST) debe realizarse en memoria de maner
 
 <img width="274" height="696" alt="image" src="https://github.com/user-attachments/assets/f5b1b46f-cf3e-4909-aea0-dfc9418336dd" />
 
+## Diagrama de Clases Estructural
+
+<img width="1428" height="610" alt="image" src="https://github.com/user-attachments/assets/e78e1aac-710e-448a-951c-3d6f307887fa" />
 
 ---
 
@@ -228,6 +231,4 @@ El análisis estático (tokenización y AST) debe realizarse en memoria de maner
 
 ---
 
-## 12. Anexo: Diagrama de Clases Estructural
 
-*(Pegar aquí la imagen del diagrama de clases)*
