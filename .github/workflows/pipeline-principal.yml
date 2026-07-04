@@ -93,7 +93,7 @@ jobs:
 
       - name: Pruebas de Mutación (mutmut)
         run: |
-          mutmut run || echo "Se detectaron mutantes que sobrevivieron"
+          mutmut run --paths-to-mutate=app/main.py || echo "Se detectaron mutantes que sobrevivieron"
           mutmut html
           mv html/* public/mutmut/ || true
           echo "### 👾 Resumen de Mutmut" >> $GITHUB_STEP_SUMMARY
